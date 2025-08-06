@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "ogrenci1",
+      "role": "student",
+      "level": "B1",
+      "name": "Ahmet Yılmaz",
+      "email": "ahmet@example.com",
+      "avatar": "/avatars/student1.jpg"
+    },
+    {
+      "id": 2,
+      "username": "ogrenci2",
+      "role": "student",
+      "level": "A2",
+      "name": "Ayşe Demir",
+      "email": "ayse@example.com",
+      "avatar": "/avatars/student2.jpg"
+    },
+    {
+      "id": 3,
+      "username": "ogretmen1",
+      "role": "teacher",
+      "name": "Mehmet Kaya",
+      "email": "mehmet@example.com",
+      "avatar": "/avatars/teacher1.jpg"
+    },
+    {
+      "id": 4,
+      "username": "ogretmen2",
+      "role": "teacher",
+      "name": "Fatma Çelik",
+      "email": "fatma@example.com",
+      "avatar": "/avatars/teacher2.jpg"
+    },
+    {
+      "id": 5,
+      "username": "yonetici1",
+      "role": "admin",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "avatar": "/avatars/admin1.jpg"
+    }
+  ]
+}

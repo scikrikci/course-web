@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  username     String       @unique
+  name         String?
+  role         Role         @default(STUDENT)
+  level        String?
+  avatar       String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  // İlişkiler
+  enrollments  Enrollment[]
+  sentMessages Message[]    @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  courseProgressions CourseProgression[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  level       String
+  description String?
+  duration    Int      // hafta cinsinden
+  startDate   DateTime
+  endDate     DateTime
+  teacherId   String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // İlişkiler
+  enrollments Enrollment[]
+  messages    Message[]
+  courseProgressions CourseProgression[]
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  userId      String
+  courseId    String
+  status      EnrollmentStatus @default(ACTIVE)
+  enrolledAt  DateTime         @default(now())
+  completedAt DateTime?
+  freezeCount Int              @default(0)
+  
+  // İlişkiler
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  freezes     CourseFreeze[]
+  
+  @@unique([userId, courseId])
+}
+
+model CourseFreeze {
+  id           String     @id @default(cuid())
+  enrollmentId String
+  reason       String?
+  frozenAt     DateTime   @default(now())
+  unfrozenAt   DateTime?
+  isActive     Boolean    @default(true)
+  
+  // İlişkiler
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+}
+
+model CourseProgression {
+  id           String   @id @default(cuid())
+  userId       String
+  courseId     String
+  nextCourseId String?  // Bir sonraki kur ID'si
+  willContinue Boolean  @default(false)
+  notifiedAt   DateTime?
+  createdAt    DateTime @default(now())
+  
+  // İlişkiler
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, courseId])
+}
+
+model Message {
+  id         String      @id @default(cuid())
+  senderId   String
+  receiverId String?     // Nullable: toplu mesaj için
+  courseId   String?     // Kurs bazlı mesajlar için
+  subject    String
+  content    String
+  messageType MessageType @default(PERSONAL)
+  isRead     Boolean     @default(false)
+  sentAt     DateTime    @default(now())
+  
+  // İlişkiler
+  sender     User        @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User?       @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  course     Course?     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+// Enums
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  FROZEN
+  COMPLETED
+  DROPPED
+}
+
+enum MessageType {
+  PERSONAL
+  COURSE_ANNOUNCEMENT
+  FREEZE_REQUEST
+  CONTINUATION_NOTICE
+}
