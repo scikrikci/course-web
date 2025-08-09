@@ -31,6 +31,8 @@ import {
   AlertCircle
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import PageHeader from "@/components/layout/PageHeader"
+import PageContainer from "@/components/layout/PageContainer"
 
 interface AdminUser {
   id: number
@@ -245,14 +247,15 @@ export default function ClassesPage() {
   }
 
   return (
-    <div className="p-6">
-      {/* Başlık */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Sınıf Yönetimi</h1>
-        <p className="text-gray-600">
-          Sistemdeki tüm sınıfları görüntüleyip yönetin.
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Sınıf Yönetimi"
+        description="Sistemdeki tüm sınıfları görüntüleyip yönetin."
+        breadcrumb={[
+          { label: "Admin", href: "/dashboard/admin" },
+          { label: "Sınıflar" },
+        ]}
+      />
 
       {/* İstatistik Kartları */}
       <div className="grid gap-6 md:grid-cols-4 mb-6">
@@ -681,6 +684,6 @@ export default function ClassesPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   )
 }

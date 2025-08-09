@@ -4,7 +4,11 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Shield, BarChart, FileText, Bell, Building } from "lucide-react"
+import { Users, Shield, BarChart, FileText, Bell, Building, Calendar } from "lucide-react"
+import AttendanceCalendar, { AttendanceRecord } from "@/components/attendance/AttendanceCalendar"
+import SimpleAttendanceCard from "@/components/attendance/SimpleAttendanceCard"
+import PageHeader from "@/components/layout/PageHeader"
+import PageContainer from "@/components/layout/PageContainer"
 
 interface User {
   id: number
@@ -18,6 +22,7 @@ interface User {
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null)
+  const [attendanceOverview, setAttendanceOverview] = useState<AttendanceRecord[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -34,20 +39,37 @@ export default function AdminDashboard() {
     }
   }, [router])
 
+  useEffect(() => {
+    // MOCK genel özet: son 14 iş günü
+    const today = new Date()
+    const records: AttendanceRecord[] = []
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const day = d.getDay()
+      if (day === 0 || day === 6) continue
+      const iso = d.toISOString().slice(0, 10)
+      const rnd = Math.random()
+      const status = rnd > 0.9 ? "absent" : rnd > 0.8 ? "late" : "present"
+      records.push({ date: iso, status })
+    }
+    setAttendanceOverview(records)
+  }, [])
+
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Hoş Geldin, {user.name}!
-        </h1>
-        <p className="text-gray-600">
-          Yönetici panelindesin. Sistemi yönet, raporları incele.
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title={`Hoş Geldin, ${user.name}!`}
+        description="Yönetici panelindesin. Sistemi yönet, raporları incele."
+        breadcrumb={[
+          { label: "Admin", href: "/dashboard/admin" },
+          { label: "Ana Sayfa" },
+        ]}
+      />
 
       {/* Sistem Durumu Özeti */}
       <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-l-blue-500">
@@ -290,6 +312,11 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
+      {/* Attendance Overview (Basit Kart) */}
+      <div className="mt-6">
+        <SimpleAttendanceCard />
+      </div>
+
       {/* Monthly Report Section */}
       <Card className="mt-6 border-l-4 border-l-indigo-500">
         <CardHeader>
@@ -376,6 +403,6 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

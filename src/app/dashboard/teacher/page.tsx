@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Users, FileText, BarChart, Megaphone } from "lucide-react"
+import { Users, FileText, BarChart, Megaphone, Calendar } from "lucide-react"
+import AttendanceCalendar, { AttendanceRecord } from "@/components/attendance/AttendanceCalendar"
+import SimpleAttendanceCard from "@/components/attendance/SimpleAttendanceCard"
+import PageHeader from "@/components/layout/PageHeader"
+import PageContainer from "@/components/layout/PageContainer"
 
 interface User {
   id: number
@@ -19,6 +23,7 @@ interface User {
 
 export default function TeacherDashboard() {
   const [user, setUser] = useState<User | null>(null)
+  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceRecord[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -35,20 +40,37 @@ export default function TeacherDashboard() {
     }
   }, [router])
 
+  useEffect(() => {
+    // MOCK sınıf öğrencileri için son 10 gün: mevcut toplamı basit bir takvim ile göstermek için
+    const today = new Date()
+    const records: AttendanceRecord[] = []
+    for (let i = 0; i < 10; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const day = d.getDay()
+      if (day === 0 || day === 6) continue
+      const iso = d.toISOString().slice(0, 10)
+      const rnd = Math.random()
+      const status = rnd > 0.85 ? "absent" : rnd > 0.75 ? "late" : "present"
+      records.push({ date: iso, status })
+    }
+    setAttendanceSummary(records)
+  }, [])
+
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>
   }
 
     return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Hoş Geldin, {user.name}!
-        </h1>
-        <p className="text-gray-600">
-          Öğretmen panelindesin. Sınıflarını yönet, ödevleri kontrol et.
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title={`Hoş Geldin, ${user.name}!`}
+        description="Öğretmen panelindesin. Sınıflarını yönet, ödevleri kontrol et."
+        breadcrumb={[
+          { label: "Öğretmen", href: "/dashboard/teacher" },
+          { label: "Ana Sayfa" },
+        ]}
+      />
 
       {/* Hızlı Aksiyonlar */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
@@ -210,6 +232,11 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
 
+        {/* Devam Özeti (Basit Kart) */}
+        <div className="md:col-span-2 lg:col-span-3">
+          <SimpleAttendanceCard />
+        </div>
+
             {/* Öğrenci Hızlı Erişim */}
             <Card className="md:col-span-2 lg:col-span-3 border-l-4 border-l-indigo-500 min-h-96">
               <CardHeader>
@@ -300,6 +327,6 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
       </div>
-    </div>
+    </PageContainer>
   )
 }

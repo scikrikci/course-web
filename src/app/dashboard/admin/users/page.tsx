@@ -27,6 +27,8 @@ import {
   Upload
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import PageHeader from "@/components/layout/PageHeader"
+import PageContainer from "@/components/layout/PageContainer"
 
 interface User {
   id: number
@@ -211,14 +213,15 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="p-6">
-      {/* Başlık */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
-        <p className="text-gray-600">
-          Sistemdeki tüm kullanıcıları görüntüleyip yönetin.
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Kullanıcı Yönetimi"
+        description="Sistemdeki tüm kullanıcıları görüntüleyip yönetin."
+        breadcrumb={[
+          { label: "Admin", href: "/dashboard/admin" },
+          { label: "Kullanıcılar" },
+        ]}
+      />
 
       {/* İstatistik Kartları */}
       <div className="grid gap-6 md:grid-cols-4 mb-6">
@@ -538,6 +541,6 @@ export default function UsersPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   )
 }

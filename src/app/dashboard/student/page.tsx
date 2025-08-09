@@ -16,6 +16,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Bell, Search, Settings, LogOut, Menu, X, BookOpen, FileText, Award, Calendar, MessageSquare, Brain, User, Shield, Palette, Save, Clock, Play, Pause, SkipForward, Send, Gamepad2, Users, Trophy, Target, Zap, CheckCircle, AlertCircle, Flame, Crown, Star, Medal } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
 import { GamificationSystem } from "@/components/gamification/GameificationSystem"
+import AttendanceCalendar, { AttendanceRecord } from "@/components/attendance/AttendanceCalendar"
+import SimpleAttendanceCard from "@/components/attendance/SimpleAttendanceCard"
 
 interface User {
   id: number
@@ -122,6 +124,7 @@ export default function StudentDashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("dashboard")
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
   const router = useRouter()
   const pathname = usePathname()
 
@@ -138,6 +141,23 @@ export default function StudentDashboard() {
       router.push('/login')
     }
   }, [router])
+
+  useEffect(() => {
+    // MOCK: API entegrasyonu yerine örnek devam verisi
+    const today = new Date()
+    const records: AttendanceRecord[] = []
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      const iso = d.toISOString().slice(0, 10)
+      const day = d.getDay()
+      if (day === 0 || day === 6) continue // hafta sonu
+      const rnd = Math.random()
+      const status = rnd > 0.9 ? "absent" : rnd > 0.8 ? "late" : rnd > 0.75 ? "excused" : "present"
+      records.push({ date: iso, status })
+    }
+    setAttendanceRecords(records)
+  }, [])
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser')
@@ -266,7 +286,7 @@ export default function StudentDashboard() {
       case "settings":
         return user ? <SettingsContent user={user} setUser={setUser} /> : <div>Yükleniyor...</div>
       default:
-        return <DashboardContent setActiveTab={setActiveTab} />
+        return <DashboardContent setActiveTab={setActiveTab} attendanceRecords={attendanceRecords} />
     }
   }
 
@@ -429,7 +449,7 @@ export default function StudentDashboard() {
 }
 
 // Dashboard Content Component  
-function DashboardContent({ setActiveTab }: { setActiveTab: (tab: string) => void }) {
+function DashboardContent({ setActiveTab, attendanceRecords }: { setActiveTab: (tab: string) => void; attendanceRecords: AttendanceRecord[] }) {
   const router = useRouter()
   const [currentCourse, setCurrentCourse] = useState({
     name: "İngilizce B1",
@@ -544,6 +564,29 @@ function DashboardContent({ setActiveTab }: { setActiveTab: (tab: string) => voi
 
   return (
     <div className="space-y-6">
+      {/* Öğretmenle İletişim - öğrenci sekmesi içinde */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-blue-600" />
+            Öğretmeninizle İletişim
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Avatar>
+                <AvatarFallback className="bg-blue-100 text-blue-700">MK</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium">Mehmet Kaya</p>
+                <p className="text-sm text-gray-600">İngilizce Öğretmeni</p>
+              </div>
+            </div>
+            <TeacherChatDialogInline />
+          </div>
+        </CardContent>
+      </Card>
       {/* Gamification Quick Stats */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <Card className="border-l-4 border-l-yellow-500 hover:shadow-md transition-shadow">
@@ -861,6 +904,9 @@ function DashboardContent({ setActiveTab }: { setActiveTab: (tab: string) => voi
           </CardContent>
         </Card>
       </div>
+
+      {/* Devam Durumu (Basit Kart) */}
+      <SimpleAttendanceCard />
 
       {/* Daily Challenge - Modern Card */}
       <Card className="border-l-4 border-l-gradient-to-r from-purple-500 to-pink-500 bg-gradient-to-br from-purple-50 to-pink-50">
@@ -2280,35 +2326,13 @@ function CalendarContent() {
         </CardContent>
       </Card>
 
-      {/* Öğretmenle İletişim */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-blue-600" />
-            Öğretmeninizle İletişim
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarFallback className="bg-blue-100 text-blue-700">MK</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium">Mehmet Kaya</p>
-                <p className="text-sm text-gray-600">İngilizce Öğretmeni</p>
-              </div>
-            </div>
-            <TeacherChatDialog />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Öğretmenle İletişim kartı Mesajlar sayfasına taşındı ve ana sayfadan kaldırıldı */}
     </div>
   )
 }
 
 // Teacher Chat Dialog Component
-function TeacherChatDialog() {
+function TeacherChatDialogInline() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([
     { id: 1, sender: 'teacher', message: 'Merhaba! Size nasıl yardımcı olabilirim?', time: '10:00' },
@@ -2316,7 +2340,6 @@ function TeacherChatDialog() {
     { id: 3, sender: 'teacher', message: 'Tabii, hangi modal verb konusunda zorluk yaşıyorsunuz?', time: '10:07' }
   ])
   const [newMessage, setNewMessage] = useState('')
-  const { toast } = useToast()
 
   const sendMessage = () => {
     if (newMessage.trim()) {
@@ -2327,8 +2350,7 @@ function TeacherChatDialog() {
         time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
       }])
       setNewMessage('')
-      
-      // Mock teacher response
+
       setTimeout(() => {
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
@@ -2358,9 +2380,8 @@ function TeacherChatDialog() {
             Öğretmeninizle birebir mesajlaşabilirsiniz
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
-          {/* Chat Messages */}
           <div className="border rounded-lg p-3 h-64 overflow-y-auto space-y-3">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.sender === 'student' ? 'justify-end' : 'justify-start'}`}>
@@ -2378,7 +2399,6 @@ function TeacherChatDialog() {
             ))}
           </div>
 
-          {/* Message Input */}
           <div className="flex gap-2">
             <Input
               placeholder="Mesajınızı yazın..."
