@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -15,7 +15,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Bell, Search, Settings, LogOut, Menu, X, BookOpen, FileText, Award, Calendar, MessageSquare, Brain, User, Shield, Palette, Save, Clock, Play, Pause, SkipForward, Send, Gamepad2, Users, Trophy, Target, Zap, CheckCircle, AlertCircle, Flame, Crown, Star, Medal } from "lucide-react"
 import { Toaster } from "@/components/ui/toaster"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { GamificationSystem } from "@/components/gamification/GameificationSystem"
+import MessagesView from "@/components/messages/MessagesView"
 import AttendanceCalendar, { AttendanceRecord } from "@/components/attendance/AttendanceCalendar"
 import SimpleAttendanceCard from "@/components/attendance/SimpleAttendanceCard"
 
@@ -123,10 +125,12 @@ interface GameHistory {
 export default function StudentDashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("dashboard")
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const userData = localStorage.getItem('currentUser')
@@ -141,6 +145,14 @@ export default function StudentDashboard() {
       router.push('/login')
     }
   }, [router])
+
+  // URL'den ?tab=... parametresi gelirse activeTab'i senkronize et
+  useEffect(() => {
+    const tab = searchParams?.get('tab')
+    if (tab && tab !== activeTab) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     // MOCK: API entegrasyonu yerine örnek devam verisi
@@ -195,12 +207,7 @@ export default function StudentDashboard() {
       icon: <Calendar className="w-5 h-5" />,
       href: "/dashboard/student/calendar"
     },
-    {
-      id: "messages",
-      title: "Mesajlar",
-      icon: <MessageSquare className="w-5 h-5" />,
-      href: "/dashboard/student/messages"
-    },
+    // Mesajlar menüden kaldırıldı; bildirim butonundan açılacak
     {
       id: "ai-assistant",
       title: "AI Asistan",
@@ -230,6 +237,7 @@ export default function StudentDashboard() {
   // Tab yönetimi için state kullanıyoruz
 
   const getPageTitle = () => {
+    if (activeTab === "messages") return "Mesajlar"
     const currentItem = menuItems.find(item => item.id === activeTab)
     return currentItem?.title || "Ana Sayfa"
   }
@@ -274,7 +282,7 @@ export default function StudentDashboard() {
       case "calendar":
         return <CalendarContent />
       case "messages":
-        return <MessagesContent />
+        return <MessagesView showHeader={false} />
       case "ai-assistant":
         return <AIAssistantContent />
       case "classroom":
@@ -344,9 +352,7 @@ export default function StudentDashboard() {
                 {item.id === "assignments" && (
                   <Badge className="ml-auto bg-red-500 text-white text-xs">3</Badge>
                 )}
-                {item.id === "messages" && (
-                  <Badge className="ml-auto bg-orange-500 text-white text-xs">7</Badge>
-                )}
+                 {/* messages göstergesi kaldırıldı */}
                 {item.id === "grades" && (
                   <div className="ml-auto w-2 h-2 bg-green-500 rounded-full"></div>
                 )}
@@ -370,8 +376,8 @@ export default function StudentDashboard() {
         </nav>
 
         <div className="p-6 border-t bg-white shrink-0 relative space-y-3">
-          {/* Bildirim Butonu */}
-          <Button variant="outline" size="sm" className="w-full">
+          {/* Bildirim Butonu - mesaj paneli buradan açılacak */}
+          <Button variant="outline" size="sm" className="w-full" onClick={() => setIsNotificationsOpen(true)}>
             <Bell className="w-4 h-4 mr-2" />
             Bildirimler
           </Button>
@@ -428,6 +434,40 @@ export default function StudentDashboard() {
           {renderContent()}
         </main>
       </div>
+
+      {/* Notifications / Messages Panel */}
+      <Sheet open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Mesajlar ve Bildirimler</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            {[ 
+              { from: "Öğretmen", text: "Quiz 5 yarın yapılacak.", time: "09:12" },
+              { from: "Sistem", text: "Ders materyali eklendi.", time: "Dün" },
+              { from: "9-A Grubu", text: "Speaking practice 14:00'da.", time: "2 gün önce" }
+            ].map((m, idx) => (
+              <div key={idx} className="p-3 border rounded-lg bg-white">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">{m.from}</p>
+                  <span className="text-xs text-gray-500">{m.time}</span>
+                </div>
+                <p className="text-sm text-gray-700 mt-1">{m.text}</p>
+              </div>
+            ))}
+            <Button 
+              className="w-full"
+              onClick={() => {
+                setIsNotificationsOpen(false)
+                router.push('/dashboard/student?tab=messages')
+              }}
+            >
+              Tüm Mesajları Gör
+            </Button>
+            <Button className="w-full" variant="outline" onClick={() => setIsNotificationsOpen(false)}>Kapat</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
       
       {/* Floating Action Button - Modern AI Assistant */}
       <div className="fixed bottom-6 right-6 z-50">

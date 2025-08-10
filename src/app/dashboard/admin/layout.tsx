@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Bell, Settings, LogOut, Menu, X, Users, Shield, BarChart, Megaphone, Building, Cog, FileText } from "lucide-react"
 
 interface User {
@@ -31,6 +32,7 @@ export default function AdminLayout({
 }) {
   const [user, setUser] = useState<User | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -135,8 +137,8 @@ export default function AdminLayout({
                     ? 'bg-purple-100 text-purple-700'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                onClick={() => {
-                  router.push(item.href)
+                 onClick={() => {
+                   router.push(item.href)
                   setSidebarOpen(false)
                 }}
               >
@@ -149,7 +151,7 @@ export default function AdminLayout({
 
         <div className="p-4 border-t bg-white shrink-0 space-y-3">
           {/* Bildirim Butonu */}
-          <Button variant="outline" size="sm" className="w-full">
+          <Button variant="outline" size="sm" className="w-full" onClick={() => setIsNotificationsOpen(true)}>
             <Bell className="w-4 h-4 mr-2" />
             Bildirimler
           </Button>
@@ -190,11 +192,41 @@ export default function AdminLayout({
           </Button>
         </div>
 
-        {/* Page Content */}
+        {/* Page Content */
+        }
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
+
+      {/* Notifications / Messages Panel */}
+      <Sheet open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Mesajlar ve Bildirimler</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            {[ 
+              { from: "Sistem", text: "Backup başarıyla tamamlandı", time: "2 saat önce" },
+              { from: "Öğretmenler", text: "25 yeni kullanıcı kaydı", time: "3 saat önce" },
+              { from: "Admin", text: "Sunucu güncellemesi planlandı", time: "1 gün önce" }
+            ].map((m, idx) => (
+              <div key={idx} className="p-3 border rounded-lg bg-white">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">{m.from}</p>
+                  <span className="text-xs text-gray-500">{m.time}</span>
+                </div>
+                <p className="text-sm text-gray-700 mt-1">{m.text}</p>
+              </div>
+            ))}
+            <Button className="w-full" onClick={() => {
+              setIsNotificationsOpen(false)
+              router.push('/dashboard/admin/messages')
+            }}>Tüm Mesajları Gör</Button>
+            <Button className="w-full" variant="outline" onClick={() => setIsNotificationsOpen(false)}>Kapat</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

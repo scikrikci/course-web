@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, Shield, BarChart, FileText, Bell, Building, Calendar } from "lucide-react"
-import AttendanceCalendar, { AttendanceRecord } from "@/components/attendance/AttendanceCalendar"
-import SimpleAttendanceCard from "@/components/attendance/SimpleAttendanceCard"
 import PageHeader from "@/components/layout/PageHeader"
 import PageContainer from "@/components/layout/PageContainer"
 
@@ -22,7 +20,6 @@ interface User {
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null)
-  const [attendanceOverview, setAttendanceOverview] = useState<AttendanceRecord[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -39,22 +36,7 @@ export default function AdminDashboard() {
     }
   }, [router])
 
-  useEffect(() => {
-    // MOCK genel özet: son 14 iş günü
-    const today = new Date()
-    const records: AttendanceRecord[] = []
-    for (let i = 0; i < 14; i++) {
-      const d = new Date(today)
-      d.setDate(today.getDate() - i)
-      const day = d.getDay()
-      if (day === 0 || day === 6) continue
-      const iso = d.toISOString().slice(0, 10)
-      const rnd = Math.random()
-      const status = rnd > 0.9 ? "absent" : rnd > 0.8 ? "late" : "present"
-      records.push({ date: iso, status })
-    }
-    setAttendanceOverview(records)
-  }, [])
+  // Attendance kaldırıldı
 
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>
@@ -312,10 +294,7 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Attendance Overview (Basit Kart) */}
-      <div className="mt-6">
-        <SimpleAttendanceCard />
-      </div>
+      {/* Attendance bölümü kaldırıldı */}
 
       {/* Monthly Report Section */}
       <Card className="mt-6 border-l-4 border-l-indigo-500">

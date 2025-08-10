@@ -4,14 +4,14 @@ import MessagesView from "@/components/messages/MessagesView"
 import PageContainer from "@/components/layout/PageContainer"
 import PageHeader from "@/components/layout/PageHeader"
 
-export default function StudentMessages() {
+export default function TeacherMessagesPage() {
   return (
     <PageContainer>
       <PageHeader
         title="Mesajlar"
-        description="Öğretmenlerinden gelen mesajları oku"
+        description="Öğretmenler ve öğrencilerle iletişim kurun"
         breadcrumb={[
-          { label: "Öğrenci", href: "/dashboard/student" },
+          { label: "Öğretmen", href: "/dashboard/teacher" },
           { label: "Mesajlar" },
         ]}
       />
@@ -19,3 +19,5 @@ export default function StudentMessages() {
     </PageContainer>
   )
 }
+
+

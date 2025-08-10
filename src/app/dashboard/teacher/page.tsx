@@ -6,8 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Users, FileText, BarChart, Megaphone, Calendar } from "lucide-react"
-import AttendanceCalendar, { AttendanceRecord } from "@/components/attendance/AttendanceCalendar"
-import SimpleAttendanceCard from "@/components/attendance/SimpleAttendanceCard"
 import PageHeader from "@/components/layout/PageHeader"
 import PageContainer from "@/components/layout/PageContainer"
 
@@ -23,7 +21,6 @@ interface User {
 
 export default function TeacherDashboard() {
   const [user, setUser] = useState<User | null>(null)
-  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceRecord[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -40,22 +37,7 @@ export default function TeacherDashboard() {
     }
   }, [router])
 
-  useEffect(() => {
-    // MOCK sınıf öğrencileri için son 10 gün: mevcut toplamı basit bir takvim ile göstermek için
-    const today = new Date()
-    const records: AttendanceRecord[] = []
-    for (let i = 0; i < 10; i++) {
-      const d = new Date(today)
-      d.setDate(today.getDate() - i)
-      const day = d.getDay()
-      if (day === 0 || day === 6) continue
-      const iso = d.toISOString().slice(0, 10)
-      const rnd = Math.random()
-      const status = rnd > 0.85 ? "absent" : rnd > 0.75 ? "late" : "present"
-      records.push({ date: iso, status })
-    }
-    setAttendanceSummary(records)
-  }, [])
+  // Attendance kaldırıldı
 
   if (!user) {
     return <div className="min-h-screen flex items-center justify-center">Yükleniyor...</div>
@@ -104,22 +86,7 @@ export default function TeacherDashboard() {
           </CardContent>
         </Card>
         
-        <Card 
-          className="border-l-4 border-l-purple-500 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
-          onClick={() => {
-            alert('Yoklama alma özelliği açılıyor...')
-          }}
-        >
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-600 group-hover:text-purple-700">Yoklama Al</p>
-                <p className="text-xs text-gray-500 group-hover:text-gray-600">Bugünkü dersler</p>
-              </div>
-              <Users className="w-5 h-5 text-purple-600 group-hover:text-purple-700 group-hover:scale-110 transition-all" />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Yoklama hızlı aksiyon kaldırıldı */}
         
         <Card 
           className="border-l-4 border-l-orange-500 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
@@ -150,24 +117,15 @@ export default function TeacherDashboard() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">9-A Sınıfı (İngilizce)</span>
-                    <div className="flex gap-2">
-                      <Badge className="bg-blue-100 text-blue-800">28 Öğrenci</Badge>
-                      <Badge className="bg-green-100 text-green-800">%87 Katılım</Badge>
-                    </div>
+                    <Badge className="bg-blue-100 text-blue-800">28 Öğrenci</Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">9-B Sınıfı (İngilizce)</span>
-                    <div className="flex gap-2">
-                      <Badge className="bg-blue-100 text-blue-800">25 Öğrenci</Badge>
-                      <Badge className="bg-yellow-100 text-yellow-800">%72 Katılım</Badge>
-                    </div>
+                    <Badge className="bg-blue-100 text-blue-800">25 Öğrenci</Badge>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="font-medium">10-A Sınıfı (İngilizce)</span>
-                    <div className="flex gap-2">
-                      <Badge className="bg-blue-100 text-blue-800">30 Öğrenci</Badge>
-                      <Badge className="bg-green-100 text-green-800">%91 Katılım</Badge>
-                    </div>
+                    <Badge className="bg-blue-100 text-blue-800">30 Öğrenci</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -220,10 +178,7 @@ export default function TeacherDashboard() {
                     <span className="font-medium">Toplam Ders</span>
                     <Badge className="bg-blue-100 text-blue-800">12 Ders</Badge>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Ortalama Katılım</span>
-                    <Badge className="bg-green-100 text-green-800">%87</Badge>
-                  </div>
+                  {/* Ortalama katılım kaldırıldı */}
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Yeni Öğrenci</span>
                     <Badge className="bg-purple-100 text-purple-800">3 Kişi</Badge>
@@ -232,10 +187,7 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
 
-        {/* Devam Özeti (Basit Kart) */}
-        <div className="md:col-span-2 lg:col-span-3">
-          <SimpleAttendanceCard />
-        </div>
+        {/* Devam özeti kaldırıldı */}
 
             {/* Öğrenci Hızlı Erişim */}
             <Card className="md:col-span-2 lg:col-span-3 border-l-4 border-l-indigo-500 min-h-96">
@@ -317,10 +269,7 @@ export default function TeacherDashboard() {
                         <p className="font-medium text-sm">23 Ödev Bekliyor</p>
                         <p className="text-xs text-gray-600">Not girişi için son 2 gün</p>
                       </div>
-                      <div className="border-l-4 border-l-yellow-500 pl-4 py-2 bg-yellow-50">
-                        <p className="font-medium text-sm">5 Öğrenci Devamsız</p>
-                        <p className="text-xs text-gray-600">Veli ile iletişim gerekli</p>
-                      </div>
+                      {/* Devamsızlık uyarısı kaldırıldı */}
                     </div>
                   </div>
                 </div>

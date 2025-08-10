@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Bell, Settings, LogOut, Menu, X, Users, FileText, BarChart, Megaphone, PlusCircle, BookOpen, Brain, Gamepad2 } from "lucide-react"
 
 interface User {
@@ -31,6 +32,7 @@ export default function TeacherLayout({
 }) {
   const [user, setUser] = useState<User | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
 
@@ -167,7 +169,7 @@ export default function TeacherLayout({
 
         <div className="p-4 border-t bg-white shrink-0 space-y-3">
           {/* Bildirim Butonu */}
-          <Button variant="outline" size="sm" className="w-full">
+          <Button variant="outline" size="sm" className="w-full" onClick={() => setIsNotificationsOpen(true)}>
             <Bell className="w-4 h-4 mr-2" />
             Bildirimler
           </Button>
@@ -213,6 +215,36 @@ export default function TeacherLayout({
           {children}
         </main>
       </div>
+
+      {/* Notifications / Messages Panel */}
+      <Sheet open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Mesajlar ve Bildirimler</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-3">
+            {/* Basit mesaj listesi örneği */
+            }
+            {[ 
+              { from: "Ayşe Demir", text: "Ödev teslim tarihi nedir?", time: "10:12" },
+              { from: "9-A Sınıfı", text: "Quiz sonuçları ne zaman açıklanacak?", time: "Dün" },
+              { from: "Sistem", text: "Yeni duyuru: Materyaller yüklendi", time: "3 gün önce" }
+            ].map((m, idx) => (
+              <div key={idx} className="p-3 border rounded-lg bg-white">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium">{m.from}</p>
+                  <span className="text-xs text-gray-500">{m.time}</span>
+                </div>
+                <p className="text-sm text-gray-700 mt-1">{m.text}</p>
+              </div>
+            ))}
+            <Button className="w-full" onClick={() => {
+              setIsNotificationsOpen(false)
+              router.push('/dashboard/teacher/messages')
+            }}>Tüm Mesajları Gör</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }
