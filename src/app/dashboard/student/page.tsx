@@ -437,17 +437,19 @@ export default function StudentDashboard() {
 
       {/* Notifications / Messages Panel */}
       <Sheet open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Mesajlar ve Bildirimler</SheetTitle>
-          </SheetHeader>
-          <div className="mt-4 space-y-3">
+        <SheetContent side="right" className="w-full sm:max-w-md p-0">
+          <div className="border-b px-4 py-3">
+            <SheetHeader>
+              <SheetTitle>Mesajlar ve Bildirimler</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="p-4 space-y-3">
             {[ 
               { from: "Öğretmen", text: "Quiz 5 yarın yapılacak.", time: "09:12" },
               { from: "Sistem", text: "Ders materyali eklendi.", time: "Dün" },
               { from: "9-A Grubu", text: "Speaking practice 14:00'da.", time: "2 gün önce" }
             ].map((m, idx) => (
-              <div key={idx} className="p-3 border rounded-lg bg-white">
+              <div key={idx} className="p-3 border rounded-lg bg-white shadow-sm">
                 <div className="flex items-center justify-between">
                   <p className="font-medium">{m.from}</p>
                   <span className="text-xs text-gray-500">{m.time}</span>

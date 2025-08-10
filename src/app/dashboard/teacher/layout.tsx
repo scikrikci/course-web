@@ -218,11 +218,13 @@ export default function TeacherLayout({
 
       {/* Notifications / Messages Panel */}
       <Sheet open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Mesajlar ve Bildirimler</SheetTitle>
-          </SheetHeader>
-          <div className="mt-4 space-y-3">
+        <SheetContent side="right" className="w-full sm:max-w-md p-0">
+          <div className="border-b px-4 py-3">
+            <SheetHeader>
+              <SheetTitle>Mesajlar ve Bildirimler</SheetTitle>
+            </SheetHeader>
+          </div>
+          <div className="p-4 space-y-3">
             {/* Basit mesaj listesi örneği */
             }
             {[ 
@@ -230,7 +232,7 @@ export default function TeacherLayout({
               { from: "9-A Sınıfı", text: "Quiz sonuçları ne zaman açıklanacak?", time: "Dün" },
               { from: "Sistem", text: "Yeni duyuru: Materyaller yüklendi", time: "3 gün önce" }
             ].map((m, idx) => (
-              <div key={idx} className="p-3 border rounded-lg bg-white">
+              <div key={idx} className="p-3 border rounded-lg bg-white shadow-sm">
                 <div className="flex items-center justify-between">
                   <p className="font-medium">{m.from}</p>
                   <span className="text-xs text-gray-500">{m.time}</span>
@@ -242,6 +244,7 @@ export default function TeacherLayout({
               setIsNotificationsOpen(false)
               router.push('/dashboard/teacher/messages')
             }}>Tüm Mesajları Gör</Button>
+            <Button className="w-full" variant="outline" onClick={() => setIsNotificationsOpen(false)}>Kapat</Button>
           </div>
         </SheetContent>
       </Sheet>
